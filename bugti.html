@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Analytics Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        /* Leaderboard */
+        .leaderboard-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .trophy {
+            font-size: 1.5em;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .rank {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .rank.top {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .website-name {
+            flex: 1;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .traffic-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-right: 10px;
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 1s ease;
+        }
+
+        /* Data Table */
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tbody tr {
+            transition: background 0.3s ease;
+        }
+
+        tbody tr:hover {
+            background: #f5f7fa;
+        }
+
+        /* Charts Section */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .chart-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        /* Bar Chart */
+        .bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .bar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bar-label {
+            width: 120px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .bar {
+            flex: 1;
+            height: 30px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 5px;
+            position: relative;
+            transition: width 1s ease;
+        }
+
+        .bar-value {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+
+        /* Pie Chart */
+        .pie-chart {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 250px;
+        }
+
+        .pie-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .metric-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .metric-title {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏢 Real Estate Analytics Dashboard</h1>
+            <p class="subtitle">Comprehensive Website Performance Analysis</p>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Traffic</h3>
+                <div class="stat-value">814M</div>
+                <div class="stat-label">Monthly Visitors</div>
+            </div>
+            <div class="stat-card">
+                <h3>Websites Analyzed</h3>
+                <div class="stat-value">8</div>
+                <div class="stat-label">Real Estate Platforms</div>
+            </div>
+            <div class="stat-card">
+                <h3>Avg Visit Duration</h3>
+                <div class="stat-value">4:47</div>
+                <div class="stat-label">Minutes:Seconds</div>
+            </div>
+            <div class="stat-card">
+                <h3>Avg Pages/Visit</h3>
+                <div class="stat-value">7.87</div>
+                <div class="stat-label">Pages per Visitor</div>
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="leaderboard-section">
+            <h2 class="section-title"><span class="trophy">🏆</span> Traffic Leaderboard</h2>
+            <div class="leaderboard-item">
+                <div class="rank top">1</div>
+                <div class="website-name">Zillow.com</div>
+                <div class="traffic-value">338M</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 100%;"></div>
+                </div>
+            </div>
+            <div class="leaderboard-item">
+                <div class="rank top">2</div>
+                <div class="website-name">Realtor.com</div>
+                <div class="traffic-value">130M</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 38%;"></div>
+                </div>
+            </div>
+            <div class="leaderboard-item">
+                <div class="rank top">3</div>
+                <div class="website-name">Airbnb.com</div>
+                <div class="traffic-value">101M</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 30%;"></div>
+                </div>
+            </div>
+            <div class="leaderboard-item">
+                <div class="rank">4</div>
+                <div class="website-name">Apartments.com</div>
+                <div class="traffic-value">41M</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 12%;"></div>
+                </div>
+            </div>
+            <div class="leaderboard-item">
+                <div class="rank">5</div>
+                <div class="website-name">Bayut.com</div>
+                <div class="traffic-value">4.5M</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 1.3%;"></div>
+                </div>
+            </div>
+            <div class="leaderboard-item">
+                <div class="rank">6</div>
+                <div class="website-name">Zameen.com</div>
+                <div class="traffic-value">3M</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0.9%;"></div>
+                </div>
+            </div>
+            <div class="leaderboard-item">
+                <div class="rank">7</div>
+                <div class="website-name">Lamudi.pk</div>
+                <div class="traffic-value">164K</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0.05%;"></div>
+                </div>
+            </div>
+            <div class="leaderboard-item">
+                <div class="rank">8</div>
+                <div class="website-name">Graana.com</div>
+                <div class="traffic-value">96K</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0.03%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-container">
+            <h2 class="section-title">📊 Detailed Website Analytics</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Website</th>
+                        <th>Traffic</th>
+                        <th>Avg Visit Duration</th>
+                        <th>Pages/Visitor</th>
+                        <th>Age Groups</th>
+                        <th>Gender (M/F) %</th>
+                        <th>Traffic Sources</th>
+                        <th>Top Countries</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Graana.com</strong></td>
+                        <td>96k</td>
+                        <td>00:01:39</td>
+                        <td>2.07</td>
+                        <td>25-44</td>
+                        <td>68/32</td>
+                        <td>Search: 67%, Direct: 26%</td>
+                        <td>PK: 60%, US: 12%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Lamudi.pk</strong></td>
+                        <td>164k</td>
+                        <td>00:00:47</td>
+                        <td>1.96</td>
+                        <td>25-44</td>
+                        <td>78/21</td>
+                        <td>Search: 68%, Direct: 25%</td>
+                        <td>PK: 58%, UK: 7%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Zameen.com</strong></td>
+                        <td>3M</td>
+                        <td>00:04:08</td>
+                        <td>6</td>
+                        <td>25-64</td>
+                        <td>74/25</td>
+                        <td>Search: 60%, Direct: 36%</td>
+                        <td>PK: 75%, UAE: 4%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Zillow.com</strong></td>
+                        <td>338M</td>
+                        <td>00:06:00</td>
+                        <td>15.36</td>
+                        <td>25-54</td>
+                        <td>47/52</td>
+                        <td>Search: 37%, Direct: 56%, Paid: 3.67%</td>
+                        <td>US: 96%, CA: 1%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Realtor.com</strong></td>
+                        <td>130M</td>
+                        <td>00:05:01</td>
+                        <td>5.41</td>
+                        <td>35-64</td>
+                        <td>43/56</td>
+                        <td>Search: 48%, Direct: 44%, Paid: 3.61%</td>
+                        <td>US: 96%, CA: 0.7%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Apartments.com</strong></td>
+                        <td>41M</td>
+                        <td>00:05:22</td>
+                        <td>8.38</td>
+                        <td>25-54</td>
+                        <td>45/54</td>
+                        <td>Search: 44%, Direct: 38%, Paid: 13%</td>
+                        <td>US: 92%, CA: 3%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Airbnb.com</strong></td>
+                        <td>101M</td>
+                        <td>00:06:45</td>
+                        <td>15.59</td>
+                        <td>25-50</td>
+                        <td>43/56</td>
+                        <td>Search: 18%, Direct: 66%, Paid: 11%</td>
+                        <td>US: 74%, PH: 1%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bayut.com</strong></td>
+                        <td>4.5M</td>
+                        <td>00:05:40</td>
+                        <td>8.18</td>
+                        <td>25-64</td>
+                        <td>61/38</td>
+                        <td>Search: 42%, Direct: 42%, Paid: 12%</td>
+                        <td>UAE: 72%, IN: 4%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <!-- Engagement Chart -->
+            <div class="chart-card">
+                <h3 class="chart-title">📈 Average Visit Duration</h3>
+                <div class="bar-chart">
+                    <div class="bar-item">
+                        <div class="bar-label">Airbnb.com</div>
+                        <div class="bar" style="width: 100%;">
+                            <span class="bar-value">6:45</span>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">Zillow.com</div>
+                        <div class="bar" style="width: 89%;">
+                            <span class="bar-value">6:00</span>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">Bayut.com</div>
+                        <div class="bar" style="width: 84%;">
+                            <span class="bar-value">5:40</span>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">Apartments.com</div>
+                        <div class="bar" style="width: 79%;">
+                            <span class="bar-value">5:22</span>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">Realtor.com</div>
+                        <div class="bar" style="width: 74%;">
+                            <span class="bar-value">5:01</span>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">Zameen.com</div>
+                        <div class="bar" style="width: 61%;">
+                            <span class="bar-value">4:08</span>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">Graana.com</div>
+                        <div class="bar" style="width: 24%;">
+                            <span class="bar-value">1:39</span>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">Lamudi.pk</div>
+                        <div class="bar" style="width: 12%;">
+                            <span class="bar-value">0:47</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pages per Visitor Chart -->
+            <div class="chart-card">
+                <h3 class="chart-title">📄 Pages per Visitor</h3>
+                <div class="bar-chart">
+                    <div class="bar-item">
+                        <div class="bar-label">Airbnb.com</div>
+                        <div class="bar" style="width: 100%; background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);">
+                            <span class="bar-value">15.59</span>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">Zillow.com</div>
+                        <div class="bar" style="width: 98%; background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);">
+                            <span class="bar-value">15.36</span>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">Apartments.com</div>
+                        <div class="bar" style="width: 54%; background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);">
+                            <span class="bar-value">8.38</span>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">Bayut.com</div>
+                        <div class="bar" style="width: 52%; background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);">
+                            <span class="bar-value">8.18</span>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">Zameen.com</div>
+                        <div class="bar" style="width: 38%; background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);">
+                            <span class="bar-value">6.00</span>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">Realtor.com</div>
+                        <div class="bar" style="width: 35%; background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);">
+                            <span class="bar-value">5.41</span>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">Graana.com</div>
+                        <div class="bar" style="width: 13%; background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);">
+                            <span class="bar-value">2.07</span>
+                        </div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">Lamudi.pk</div>
+                        <div class="bar" style="width: 12%; background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);">
+                            <span class="bar-value">1.96</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Metrics -->
+        <div class="chart-card">
+            <h3 class="chart-title">🎯 Key Performance Indicators</h3>
+            <div class="metrics-grid">
+                <div class="metric-box">
+                    <div class="metric-title">Highest Traffic</div>
+                    <div class="metric-value">Zillow.com</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-title">Best Engagement</div>
+                    <div class="metric-value">Airbnb.com</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-title">Most Pages/Visit</div>
+                    <div class="metric-value">Airbnb.com</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-title">Top Pakistani Site</div>
+                    <div class="metric-value">Zameen.com</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-title">Avg Male/Female</div>
+                    <div class="metric-value">55% / 44%</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-title">Primary Age Group</div>
+                    <div class="metric-value">25-54</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
